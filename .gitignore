@@ -1,0 +1,56 @@
+############################
+# Build output
+############################
+Backend/**/bin/
+Backend/**/obj/
+Frontend/**/bin/
+Frontend/**/obj/
+
+############################
+# Visual Studio
+############################
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+############################
+# IDEs & Editors
+############################
+.idea/
+*.swp
+*.tmp
+*.userprefs
+*.vscode/
+
+############################
+# OS-specific
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# Logs & Temp
+############################
+*.log
+logs/
+temp/
+node_modules/    # (only if you add client-side npm packages for MVC UI)
+
+############################
+# NuGet
+############################
+# Don’t ignore .csproj or .sln
+*.nupkg
+*.snupkg
+*.nuspec
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+############################
+# ASP.NET publish output
+############################
+wwwroot/lib/
+publish/

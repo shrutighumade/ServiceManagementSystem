@@ -1,0 +1,114 @@
+@model List<ServiceManagementSystem.MVC.Models.BookingViewModel>
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h1>My Bookings</h1>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        @foreach (var booking in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">@booking.Service?.Name</h5>
+                        @{
+                            var statusClass = booking.Status switch
+                            {
+                                "Pending" => "bg-warning",
+                                "Confirmed" => "bg-success",
+                                "Completed" => "bg-info",
+                                "Cancelled" => "bg-danger",
+                                _ => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @statusClass">@booking.Status</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <strong>Provider:</strong> @booking.Provider?.BusinessName<br>
+                            <strong>Date:</strong> @booking.BookingDate.ToString("MMM dd, yyyy")<br>
+                            <strong>Time:</strong> @booking.StartTime.ToString(@"hh\:mm") - @booking.EndTime.ToString(@"hh\:mm")<br>
+                            <strong>Address:</strong> @booking.Address<br>
+                            <strong>Total Amount:</strong> $@booking.TotalAmount.ToString("F2")
+                        </p>
+                        
+                        @if (!string.IsNullOrEmpty(booking.SpecialInstructions))
+                        {
+                            <p class="card-text">
+                                <strong>Special Instructions:</strong><br>
+                                <em>@booking.SpecialInstructions</em>
+                            </p>
+                        }
+                        
+                        @if (booking.Payment != null)
+                        {
+                            <div class="mt-3">
+                                <h6>Payment Information</h6>
+                                <p class="card-text">
+                                    <strong>Status:</strong> 
+                                    @{
+                                        var paymentStatusClass = booking.Payment.Status switch
+                                        {
+                                            "Completed" => "bg-success",
+                                            "Failed" => "bg-danger",
+                                            "Pending" => "bg-warning",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @paymentStatusClass">@booking.Payment.Status</span><br>
+                                    <strong>Method:</strong> @booking.Payment.PaymentMethod<br>
+                                    <strong>Amount:</strong> $@booking.Payment.Amount.ToString("F2")
+                                </p>
+                                
+                                @if (booking.Payment.Status == "Failed" && !string.IsNullOrEmpty(booking.Payment.FailureReason))
+                                {
+                                    <div class="alert alert-danger">
+                                        <strong>Payment Failed:</strong> @booking.Payment.FailureReason
+                                    </div>
+                                }
+                            </div>
+                        }
+                        
+                        @if (booking.Status == "Pending" && booking.Payment == null)
+                        {
+                            <div class="mt-3">
+                                <form asp-controller="Bookings" asp-action="ProcessPayment" method="post" class="d-inline">
+                                    <input type="hidden" name="bookingId" value="@booking.Id" />
+                                    <button type="submit" class="btn btn-success">Process Payment</button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer text-muted">
+                        <small>
+                            Created: @booking.CreatedAt.ToString("MMM dd, yyyy HH:mm")
+                            @if (booking.ConfirmedAt.HasValue)
+                            {
+                                <text><br>Confirmed: @booking.ConfirmedAt.Value.ToString("MMM dd, yyyy HH:mm")</text>
+                            }
+                            @if (booking.CompletedAt.HasValue)
+                            {
+                                <text><br>Completed: @booking.CompletedAt.Value.ToString("MMM dd, yyyy HH:mm")</text>
+                            }
+                        </small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h3>No bookings found.</h3>
+        <p>You haven't made any bookings yet.</p>
+        <a asp-controller="Services" asp-action="Index" class="btn btn-primary">Browse Services</a>
+    </div>
+}

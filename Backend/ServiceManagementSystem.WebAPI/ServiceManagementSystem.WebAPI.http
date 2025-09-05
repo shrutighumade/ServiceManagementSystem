@@ -1,0 +1,6 @@
+@ServiceManagementSystem.WebAPI_HostAddress = http://localhost:5107
+
+GET {{ServiceManagementSystem.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

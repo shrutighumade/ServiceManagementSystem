@@ -1,0 +1,87 @@
+@model ServiceManagementSystem.MVC.Models.CreateBookingViewModel
+@{
+    ViewData["Title"] = "Book Service";
+    var service = ViewBag.Service as ServiceManagementSystem.MVC.Models.ServiceViewModel;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Book Service: @service?.Name</h3>
+            </div>
+            <div class="card-body">
+                @if (service != null)
+                {
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Service Details</h6>
+                                    <p class="card-text">
+                                        <strong>Category:</strong> @service.Category<br>
+                                        <strong>Price:</strong> $@service.Price.ToString("F2")<br>
+                                        <strong>Duration:</strong> @service.DurationMinutes minutes<br>
+                                        <strong>Provider:</strong> @service.Provider?.BusinessName
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Total Cost</h6>
+                                    <h4 class="text-primary">$@service.Price.ToString("F2")</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                <form asp-action="Book" method="post">
+                    <input asp-for="ServiceId" type="hidden" />
+                    
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="BookingDate" class="form-label"></label>
+                                <input asp-for="BookingDate" class="form-control" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="BookingDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="StartTime" class="form-label"></label>
+                                <input asp-for="StartTime" class="form-control" />
+                                <span asp-validation-for="StartTime" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Address" class="form-label"></label>
+                        <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="SpecialInstructions" class="form-label"></label>
+                        <textarea asp-for="SpecialInstructions" class="form-control" rows="3" placeholder="Any special instructions or requirements..."></textarea>
+                        <span asp-validation-for="SpecialInstructions" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Details" asp-route-id="@Model.ServiceId" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

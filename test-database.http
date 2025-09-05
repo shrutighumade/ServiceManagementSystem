@@ -1,0 +1,29 @@
+### Test Database Connection and Seeding
+GET http://localhost:5107/api/auth/check-email?email=admin@servicemanagement.com
+
+### Test Login with Admin
+POST http://localhost:5107/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@servicemanagement.com",
+  "password": "Admin123!"
+}
+
+### Test Login with Provider
+POST http://localhost:5107/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "provider@example.com",
+  "password": "Provider123!"
+}
+
+### Test Login with Customer
+POST http://localhost:5107/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "customer@example.com",
+  "password": "Customer123!"
+}

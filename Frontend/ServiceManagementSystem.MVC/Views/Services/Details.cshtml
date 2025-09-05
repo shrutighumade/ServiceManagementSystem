@@ -1,0 +1,78 @@
+@model ServiceManagementSystem.MVC.Models.ServiceViewModel
+@{
+    ViewData["Title"] = "Service Details";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">@Model.Name</h1>
+                <p class="card-text">
+                    <span class="badge bg-primary">@Model.Category</span>
+                </p>
+                <p class="card-text">@Model.Description</p>
+                
+                @if (Model.Provider != null)
+                {
+                    <div class="mt-4">
+                        <h5>Service Provider</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">@Model.Provider.BusinessName</h6>
+                                <p class="card-text">@Model.Provider.Description</p>
+                                <p class="card-text">
+                                    <strong>Address:</strong> @Model.Provider.Address, @Model.Provider.City, @Model.Provider.Country<br>
+                                    <strong>Rating:</strong> @Model.Provider.Rating.ToString("F1") ⭐ (@Model.Provider.TotalReviews reviews)<br>
+                                    <strong>Status:</strong> 
+                                    @if (Model.Provider.IsAvailable)
+                                    {
+                                        <span class="badge bg-success">Available</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Unavailable</span>
+                                    }
+                                    @if (Model.Provider.IsVerified)
+                                    {
+                                        <span class="badge bg-info">Verified</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Booking Information</h5>
+                <div class="mb-3">
+                    <strong>Price:</strong> <span class="h4 text-primary">$@Model.Price.ToString("F2")</span>
+                </div>
+                <div class="mb-3">
+                    <strong>Duration:</strong> @Model.DurationMinutes minutes
+                </div>
+                <div class="mb-3">
+                    <strong>Status:</strong> 
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Inactive</span>
+                    }
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a asp-action="Book" asp-route-id="@Model.Id" class="btn btn-primary btn-lg">Book This Service</a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Back to Services</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,57 @@
+### Test Service Management System API
+
+### Get all services
+GET http://localhost:5107/api/services
+Accept: application/json
+
+###
+
+### Get service categories
+GET http://localhost:5107/api/services/categories
+Accept: application/json
+
+###
+
+### Register a new user
+POST http://localhost:5107/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "email": "test@example.com",
+  "phoneNumber": "1234567890",
+  "password": "Test123!",
+  "role": "User"
+}
+
+###
+
+### Login user
+POST http://localhost:5107/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@servicemanagement.com",
+  "password": "Admin123!"
+}
+
+###
+
+### Get bookings
+GET http://localhost:5107/api/bookings
+Accept: application/json
+
+###
+
+### Create a booking
+POST http://localhost:5107/api/bookings
+Content-Type: application/json
+
+{
+  "serviceId": 1,
+  "bookingDate": "2024-01-15T00:00:00Z",
+  "startTime": "09:00:00",
+  "address": "123 Test Street, Test City",
+  "specialInstructions": "Please ring the doorbell"
+}
