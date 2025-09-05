@@ -5,34 +5,42 @@ A comprehensive .NET-based service management platform built with Clean Architec
 ## 🚀 Quick Start - How to Run
 
 ### Prerequisites
+
 - .NET 9.0 SDK
 - Visual Studio 2022 or VS Code (optional)
 
 ### 1. Clone and Navigate
+
 ```bash
-git clone <repository-url>
+git clone https://github.com/shrutighumade/ServiceManagementSystem
 cd DotNetProject
 ```
 
 ### 2. Restore Dependencies
+
 ```bash
 dotnet restore
 ```
 
 ### 3. Run the WebAPI (Backend)
+
 ```bash
 dotnet run --project Backend\ServiceManagementSystem.WebAPI
 ```
+
 - **API URL**: `http://localhost:5107`
 - **Swagger UI**: `http://localhost:5107/swagger`
 
 ### 4. Run the MVC Frontend (Optional)
+
 ```bash
 dotnet run --project Frontend\ServiceManagementSystem.MVC
 ```
+
 - **Frontend URL**: `http://localhost:5107`
 
 ### 5. Test the API
+
 Use the provided `test-api.http` file or visit the Swagger UI to test endpoints.
 
 ## 📋 Project Structure
@@ -51,12 +59,14 @@ ServiceManagementSystem/
 ## 🏗️ Architecture
 
 ### Clean Architecture Layers
+
 - **Core**: Domain entities, DTOs, business interfaces
 - **Infrastructure**: Data access, external services, repository implementations
 - **WebAPI**: REST API controllers, middleware, configuration
 - **MVC**: Web UI consuming the API
 
 ### Key Technologies
+
 - **Backend**: ASP.NET Core Web API, Entity Framework Core, SQLite
 - **Frontend**: ASP.NET Core MVC, Bootstrap, Razor Pages
 - **Authentication**: JWT Bearer tokens with role-based authorization
@@ -68,6 +78,7 @@ ServiceManagementSystem/
 ## 🎯 Features
 
 ### ✅ Implemented Features
+
 - **User Management**: Registration, login, role-based access (User, Provider, Admin)
 - **Service Management**: CRUD operations for services with categories
 - **Booking System**: Create, update, cancel bookings with time slot validation
@@ -77,6 +88,7 @@ ServiceManagementSystem/
 - **Database**: SQLite with seed data (Admin, Provider, Customer users)
 
 ### 🔄 In Progress
+
 - JWT Authentication implementation
 - Advanced reporting features
 - Unit and integration tests
@@ -84,6 +96,7 @@ ServiceManagementSystem/
 ## 📊 Database Schema
 
 ### Core Entities
+
 - **User**: Authentication and profile information
 - **Provider**: Service provider details and business information
 - **Service**: Available services with pricing and duration
@@ -92,7 +105,9 @@ ServiceManagementSystem/
 - **ProviderAvailability**: Time slot management
 
 ### Seed Data
+
 The system comes with pre-configured users:
+
 - **Admin**: `admin@servicemanagement.com` / `Admin123!`
 - **Provider**: `provider@example.com` / `Provider123!`
 - **Customer**: `customer@example.com` / `Customer123!`
@@ -100,11 +115,13 @@ The system comes with pre-configured users:
 ## 🔌 API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/login` - User login
 - `POST /api/auth/register` - User registration
 - `GET /api/auth/user/{id}` - Get user details
 
 ### Services
+
 - `GET /api/services` - Get all services
 - `GET /api/services/{id}` - Get service by ID
 - `GET /api/services/category/{category}` - Get services by category
@@ -114,6 +131,7 @@ The system comes with pre-configured users:
 - `DELETE /api/services/{id}` - Delete service
 
 ### Bookings
+
 - `GET /api/bookings` - Get all bookings
 - `GET /api/bookings/user/{userId}` - Get user bookings
 - `GET /api/bookings/provider/{providerId}` - Get provider bookings
@@ -125,6 +143,7 @@ The system comes with pre-configured users:
 ## 🛠️ Development
 
 ### Adding New Features
+
 1. **Domain Layer**: Add entities and DTOs in Core project
 2. **Data Layer**: Implement repositories in Infrastructure project
 3. **Business Layer**: Create services in Infrastructure project
@@ -132,6 +151,7 @@ The system comes with pre-configured users:
 5. **UI Layer**: Create views and controllers in MVC project
 
 ### Database Migrations
+
 ```bash
 # Add migration
 dotnet ef migrations add MigrationName --project Backend\ServiceManagementSystem.Infrastructure --startup-project Backend\ServiceManagementSystem.WebAPI
@@ -141,6 +161,7 @@ dotnet ef database update --project Backend\ServiceManagementSystem.Infrastructu
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 dotnet test
@@ -152,27 +173,33 @@ dotnet test Backend\ServiceManagementSystem.Tests
 ## 🔧 Configuration
 
 ### Connection Strings
+
 The system uses SQLite by default. To change to SQL Server:
+
 1. Update `appsettings.json` connection string
 2. Add SQL Server package: `dotnet add package Microsoft.EntityFrameworkCore.SqlServer`
 3. Update `ServiceCollectionExtensions.cs` to use `UseSqlServer()`
 
 ### Environment Variables
+
 - `ASPNETCORE_ENVIRONMENT`: Set to `Development` for detailed errors
 - `ConnectionStrings__DefaultConnection`: Override database connection
 
 ## 📝 API Testing
 
 ### Using Swagger UI
+
 1. Run the WebAPI project
 2. Navigate to `http://localhost:5107/swagger`
 3. Use the interactive API documentation
 
 ### Using HTTP Files
+
 1. Open `test-api.http` in VS Code with REST Client extension
 2. Run individual requests or the entire file
 
 ### Sample API Calls
+
 ```bash
 # Get all services
 curl -X GET "http://localhost:5107/api/services"
@@ -193,18 +220,22 @@ curl -X POST "http://localhost:5107/api/bookings" \
 ### Common Issues
 
 **Database Connection Error**
+
 - Ensure SQLite database file is created
 - Check connection string in `appsettings.json`
 
 **Build Errors**
+
 - Run `dotnet restore` to restore packages
 - Check for missing package references
 
 **Port Conflicts**
+
 - Update ports in `launchSettings.json`
 - Use `dotnet run --urls "https://localhost:5001"`
 
 **CORS Issues**
+
 - Verify CORS policy in `Program.cs`
 - Check frontend URL configuration
 
