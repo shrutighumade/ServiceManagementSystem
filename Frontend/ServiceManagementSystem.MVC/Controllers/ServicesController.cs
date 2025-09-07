@@ -7,12 +7,10 @@ namespace ServiceManagementSystem.MVC.Controllers
     public class ServicesController : Controller
     {
         private readonly ApiService _apiService;
-        private readonly ILogger<ServicesController> _logger;
 
-        public ServicesController(ApiService apiService, ILogger<ServicesController> logger)
+        public ServicesController(ApiService apiService)
         {
             _apiService = apiService;
-            _logger = logger;
         }
 
         public async Task<IActionResult> Index(string? category)
@@ -34,7 +32,6 @@ namespace ServiceManagementSystem.MVC.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading services");
                 TempData["ErrorMessage"] = "An error occurred while loading services.";
                 return View(new List<ServiceViewModel>());
             }
@@ -55,7 +52,6 @@ namespace ServiceManagementSystem.MVC.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading service details");
                 TempData["ErrorMessage"] = "An error occurred while loading service details.";
                 return RedirectToAction("Index");
             }
@@ -83,7 +79,6 @@ namespace ServiceManagementSystem.MVC.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading booking form");
                 TempData["ErrorMessage"] = "An error occurred while loading the booking form.";
                 return RedirectToAction("Index");
             }
@@ -132,7 +127,6 @@ namespace ServiceManagementSystem.MVC.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating booking");
                 ModelState.AddModelError("", "An error occurred while creating the booking. Please try again.");
             }
 

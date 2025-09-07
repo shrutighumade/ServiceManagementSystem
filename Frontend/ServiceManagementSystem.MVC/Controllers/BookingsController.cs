@@ -7,12 +7,10 @@ namespace ServiceManagementSystem.MVC.Controllers
     public class BookingsController : Controller
     {
         private readonly ApiService _apiService;
-        private readonly ILogger<BookingsController> _logger;
 
-        public BookingsController(ApiService apiService, ILogger<BookingsController> logger)
+        public BookingsController(ApiService apiService)
         {
             _apiService = apiService;
-            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
@@ -24,7 +22,6 @@ namespace ServiceManagementSystem.MVC.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading bookings");
                 TempData["ErrorMessage"] = "An error occurred while loading bookings.";
                 return View(new List<BookingViewModel>());
             }
@@ -47,7 +44,6 @@ namespace ServiceManagementSystem.MVC.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing payment");
                 TempData["ErrorMessage"] = "An error occurred while processing payment.";
             }
 

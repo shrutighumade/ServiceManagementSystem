@@ -92,37 +92,26 @@ namespace ServiceManagementSystem.WebAPI.Controllers
         {
             try
             {
-                // Log the incoming request
-                Console.WriteLine($"CreateBooking request: ServiceId={createBookingDto.ServiceId}, Date={createBookingDto.BookingDate}, Time={createBookingDto.StartTime}, Address={createBookingDto.Address}");
-
                 // Get user ID from JWT token claims
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
                 if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
                 {
-                    Console.WriteLine("Invalid user token - no user ID claim found");
                     return Unauthorized("Invalid user token");
                 }
 
-                Console.WriteLine($"User ID from token: {userId}");
-
                 var booking = await _bookingService.CreateBookingAsync(createBookingDto, userId);
-                Console.WriteLine($"Booking created successfully: ID={booking.Id}");
                 return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);
             }
             catch (KeyNotFoundException ex)
             {
-                Console.WriteLine($"KeyNotFoundException: {ex.Message}");
                 return NotFound(ex.Message);
             }
             catch (InvalidOperationException ex)
             {
-                Console.WriteLine($"InvalidOperationException: {ex.Message}");
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception: {ex.Message}");
-                Console.WriteLine($"StackTrace: {ex.StackTrace}");
                 return BadRequest(ex.Message);
             }
         }

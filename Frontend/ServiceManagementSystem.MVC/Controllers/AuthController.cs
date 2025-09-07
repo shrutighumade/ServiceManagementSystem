@@ -7,12 +7,10 @@ namespace ServiceManagementSystem.MVC.Controllers
     public class AuthController : Controller
     {
         private readonly ApiService _apiService;
-        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(ApiService apiService, ILogger<AuthController> logger)
+        public AuthController(ApiService apiService)
         {
             _apiService = apiService;
-            _logger = logger;
         }
 
         [HttpGet]
@@ -41,7 +39,6 @@ namespace ServiceManagementSystem.MVC.Controllers
                     HttpContext.Session.SetString("UserRole", response.User.Role);
                     HttpContext.Session.SetString("UserName", $"{response.User.FirstName} {response.User.LastName}");
 
-                    Console.WriteLine($"Login successful: Token stored in session: {!string.IsNullOrEmpty(response.Token)}");
                     TempData["SuccessMessage"] = "Login successful!";
                     return RedirectToAction("Index", "Home");
                 }
@@ -52,7 +49,6 @@ namespace ServiceManagementSystem.MVC.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during login");
                 ModelState.AddModelError("", "An error occurred during login. Please try again.");
             }
 
@@ -88,7 +84,6 @@ namespace ServiceManagementSystem.MVC.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during registration");
                 ModelState.AddModelError("", "An error occurred during registration. Please try again.");
             }
 

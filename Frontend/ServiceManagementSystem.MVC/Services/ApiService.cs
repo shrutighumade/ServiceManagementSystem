@@ -23,7 +23,6 @@ namespace ServiceManagementSystem.MVC.Services
         private void AddAuthHeader()
         {
             var token = _httpContextAccessor.HttpContext?.Session.GetString("JWTToken");
-            Console.WriteLine($"AddAuthHeader: Token present: {!string.IsNullOrEmpty(token)}");
             if (!string.IsNullOrEmpty(token))
             {
                 // Remove existing Authorization header to avoid duplicates
@@ -33,7 +32,6 @@ namespace ServiceManagementSystem.MVC.Services
                 }
                 _httpClient.DefaultRequestHeaders.Authorization =
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-                Console.WriteLine("AddAuthHeader: Authorization header set");
             }
             else
             {
@@ -42,7 +40,6 @@ namespace ServiceManagementSystem.MVC.Services
                 {
                     _httpClient.DefaultRequestHeaders.Remove("Authorization");
                 }
-                Console.WriteLine("AddAuthHeader: No token found, Authorization header removed");
             }
         }
 
@@ -66,12 +63,10 @@ namespace ServiceManagementSystem.MVC.Services
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Login failed: {response.StatusCode} - {errorContent}");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Login error: {ex.Message}");
             }
             return null;
         }
@@ -189,7 +184,6 @@ namespace ServiceManagementSystem.MVC.Services
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Booking creation failed: {response.StatusCode} - {errorContent}");
                 return null;
             }
         }

@@ -82,7 +82,6 @@ using (var scope = app.Services.CreateScope())
     {
         // The seeding is handled in the ApplicationDbContext.OnModelCreating method
         // This will be called when EnsureCreated() is called
-        Console.WriteLine("Database seeded with initial data.");
     }
 }
 
