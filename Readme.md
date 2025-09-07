@@ -16,11 +16,21 @@ git clone https://github.com/shrutighumade/ServiceManagementSystem
 cd DotNetProject
 ```
 
-### 2. Restore Dependencies
 
-```bash
-dotnet restore
-```
+## 2. Restore Dependencies
+
+Before restoring, make sure the official NuGet feed is configured:
+
+dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org  
+dotnet nuget list source  
+
+You should see nuget.org in the list of registered sources.
+
+Now restore all project dependencies:
+
+dotnet restore  
+
+---
 
 ### 3. Run the WebAPI (Backend)
 
