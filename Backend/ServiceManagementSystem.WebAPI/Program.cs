@@ -3,6 +3,9 @@ using ServiceManagementSystem.Infrastructure.Data;
 using ServiceManagementSystem.Infrastructure.Extensions;
 using AutoMapper;
 using ServiceManagementSystem.Infrastructure.Mappings;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +32,22 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+// Add JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "ServiceManagementSystem",
+            ValidAudience = builder.Configuration["Jwt:Audience"] ?? "ServiceManagementSystem",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyHere12345678901234567890"))
+        };
+    });
+
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -47,6 +66,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

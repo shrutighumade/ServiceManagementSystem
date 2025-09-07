@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using AutoMapper;
 using ServiceManagementSystem.Core.Interfaces;
 using ServiceManagementSystem.Infrastructure.Data;
 using ServiceManagementSystem.Infrastructure.Repositories;
@@ -23,7 +24,13 @@ namespace ServiceManagementSystem.Infrastructure.Extensions
             services.AddScoped<IBookingRepository, BookingRepository>();
 
             // Services
-            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserService>(provider =>
+            {
+                var unitOfWork = provider.GetRequiredService<IUnitOfWork>();
+                var mapper = provider.GetRequiredService<IMapper>();
+                var configuration = provider.GetRequiredService<IConfiguration>();
+                return new UserService(unitOfWork, mapper, configuration);
+            });
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IPaymentService, PaymentService>();

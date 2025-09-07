@@ -60,9 +60,9 @@ namespace ServiceManagementSystem.Infrastructure.Services
             // Check if time slot is available
             var endTime = createBookingDto.StartTime.Add(TimeSpan.FromMinutes(service.DurationMinutes));
             var isAvailable = await _unitOfWork.Bookings.IsTimeSlotAvailableAsync(
-                service.ProviderId, 
-                createBookingDto.BookingDate, 
-                createBookingDto.StartTime, 
+                service.ProviderId,
+                createBookingDto.BookingDate,
+                createBookingDto.StartTime,
                 endTime);
 
             if (!isAvailable)

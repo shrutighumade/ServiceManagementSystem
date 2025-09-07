@@ -65,17 +65,39 @@ namespace ServiceManagementSystem.Infrastructure.Repositories
 
         public async Task<bool> IsTimeSlotAvailableAsync(int providerId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
         {
-            var conflictingBookings = await _dbSet
+            Console.WriteLine($"Checking time slot availability: ProviderId={providerId}, Date={bookingDate.Date}, StartTime={startTime}, EndTime={endTime}");
+
+            // First, get all potential conflicting bookings from the database
+            var potentialConflicts = await _dbSet
                 .Where(b => b.ProviderId == providerId &&
                            b.BookingDate.Date == bookingDate.Date &&
                            b.Status != "Cancelled" &&
-                           b.Status != "Rejected" &&
-                           ((b.StartTime <= startTime && b.EndTime > startTime) ||
-                            (b.StartTime < endTime && b.EndTime >= endTime) ||
-                            (b.StartTime >= startTime && b.EndTime <= endTime)))
-                .AnyAsync();
+                           b.Status != "Rejected")
+                .ToListAsync();
 
-            return !conflictingBookings;
+            Console.WriteLine($"Found {potentialConflicts.Count} potential conflicting bookings");
+
+            // Then check for time conflicts on the client side
+            var conflictingBookings = potentialConflicts
+                .Where(b => (b.StartTime <= startTime && b.EndTime > startTime) ||
+                          (b.StartTime < endTime && b.EndTime >= endTime) ||
+                          (b.StartTime >= startTime && b.EndTime <= endTime))
+                .ToList();
+
+            if (conflictingBookings.Any())
+            {
+                Console.WriteLine($"Found {conflictingBookings.Count} time slot conflicts:");
+                foreach (var booking in conflictingBookings)
+                {
+                    Console.WriteLine($"  Conflicting booking ID={booking.Id}, StartTime={booking.StartTime}, EndTime={booking.EndTime}, Status={booking.Status}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No time slot conflicts found");
+            }
+
+            return !conflictingBookings.Any();
         }
     }
 }

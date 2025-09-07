@@ -47,15 +47,16 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="BookingDate" class="form-label"></label>
-                                <input asp-for="BookingDate" class="form-control" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                                <input asp-for="BookingDate" class="form-control" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" id="bookingDate" />
                                 <span asp-validation-for="BookingDate" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label asp-for="StartTime" class="form-label"></label>
-                                <input asp-for="StartTime" class="form-control" />
+                                <input asp-for="StartTime" class="form-control" id="startTime" />
                                 <span asp-validation-for="StartTime" class="text-danger"></span>
+                                <div id="availabilityStatus" class="mt-2" style="display: none;"></div>
                             </div>
                         </div>
                     </div>
@@ -84,4 +85,65 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function() {
+            const serviceId = @Model.ServiceId;
+            const durationMinutes = @service?.DurationMinutes ?? 0;
+            const providerId = @service?.ProviderId ?? 0;
+
+            function checkAvailability() {
+                const bookingDate = $('#bookingDate').val();
+                const startTime = $('#startTime').val();
+
+                if (!bookingDate || !startTime || !providerId) {
+                    $('#availabilityStatus').hide();
+                    return;
+                }
+
+                // Calculate end time
+                const startTimeSpan = startTime.split(':');
+                const startMinutes = parseInt(startTimeSpan[0]) * 60 + parseInt(startTimeSpan[1]);
+                const endMinutes = startMinutes + durationMinutes;
+                const endHours = Math.floor(endMinutes / 60);
+                const endMins = endMinutes % 60;
+                const endTime = `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`;
+
+                // Show checking status
+                $('#availabilityStatus').show().html('<small class="text-muted">Checking availability...</small>');
+
+                // Make AJAX call to check availability
+                $.ajax({
+                    url: '/api/bookings/availability',
+                    method: 'GET',
+                    data: {
+                        providerId: providerId,
+                        bookingDate: bookingDate,
+                        startTime: startTime,
+                        endTime: endTime
+                    },
+                    success: function(isAvailable) {
+                        if (isAvailable) {
+                            $('#availabilityStatus').html('<small class="text-success">✓ Time slot is available</small>');
+                        } else {
+                            $('#availabilityStatus').html('<small class="text-danger">✗ Time slot is not available</small>');
+                        }
+                    },
+                    error: function() {
+                        $('#availabilityStatus').html('<small class="text-warning">Unable to check availability</small>');
+                    }
+                });
+            }
+
+            // Check availability when date or time changes
+            $('#bookingDate, #startTime').on('change input', function() {
+                checkAvailability();
+            });
+
+            // Initial check if both fields have values
+            if ($('#bookingDate').val() && $('#startTime').val()) {
+                checkAvailability();
+            }
+        });
+    </script>
 }

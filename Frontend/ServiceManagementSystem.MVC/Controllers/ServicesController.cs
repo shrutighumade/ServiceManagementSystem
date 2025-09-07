@@ -101,6 +101,24 @@ namespace ServiceManagementSystem.MVC.Controllers
 
             try
             {
+                // Check availability before creating booking
+                var service = await _apiService.GetServiceAsync(model.ServiceId);
+                if (service == null)
+                {
+                    ModelState.AddModelError("", "Service not found.");
+                    ViewBag.Service = null;
+                    return View(model);
+                }
+
+                var endTime = model.StartTime.Add(TimeSpan.FromMinutes(service.DurationMinutes));
+                var isAvailable = await _apiService.CheckAvailabilityAsync(service.ProviderId, model.BookingDate, model.StartTime, endTime);
+                if (!isAvailable)
+                {
+                    ModelState.AddModelError("", "The selected time slot is not available. Please choose a different time.");
+                    ViewBag.Service = service;
+                    return View(model);
+                }
+
                 var booking = await _apiService.CreateBookingAsync(model);
                 if (booking != null)
                 {

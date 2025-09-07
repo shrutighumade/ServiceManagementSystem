@@ -36,10 +36,12 @@ namespace ServiceManagementSystem.MVC.Controllers
                 {
                     // Store token in session
                     HttpContext.Session.SetString("JWTToken", response.Token);
+                    HttpContext.Session.SetString("UserId", response.User.Id.ToString());
                     HttpContext.Session.SetString("UserEmail", response.User.Email);
                     HttpContext.Session.SetString("UserRole", response.User.Role);
                     HttpContext.Session.SetString("UserName", $"{response.User.FirstName} {response.User.LastName}");
 
+                    Console.WriteLine($"Login successful: Token stored in session: {!string.IsNullOrEmpty(response.Token)}");
                     TempData["SuccessMessage"] = "Login successful!";
                     return RedirectToAction("Index", "Home");
                 }

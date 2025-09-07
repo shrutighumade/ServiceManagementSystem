@@ -3,6 +3,11 @@ using ServiceManagementSystem.Core.DTOs;
 using ServiceManagementSystem.Core.Entities;
 using ServiceManagementSystem.Core.Interfaces;
 using BCrypt.Net;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace ServiceManagementSystem.Infrastructure.Services
 {
@@ -10,11 +15,13 @@ namespace ServiceManagementSystem.Infrastructure.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
-        public UserService(IUnitOfWork unitOfWork, IMapper mapper)
+        public UserService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _configuration = configuration;
         }
 
         public async Task<UserDto?> GetUserByIdAsync(int id)
@@ -101,13 +108,33 @@ namespace ServiceManagementSystem.Infrastructure.Services
                 throw new UnauthorizedAccessException("Account is deactivated");
             }
 
-            // Generate JWT token (this would be implemented with JWT service)
-            var token = "dummy-jwt-token"; // TODO: Implement JWT token generation
+            // Generate JWT token
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim("sub", user.Id.ToString()) // For compatibility with some JWT libraries
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "YourSuperSecretKeyHere12345678901234567890"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
             var expiresAt = DateTime.UtcNow.AddHours(24);
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"] ?? "ServiceManagementSystem",
+                audience: _configuration["Jwt:Audience"] ?? "ServiceManagementSystem",
+                claims: claims,
+                expires: expiresAt,
+                signingCredentials: creds
+            );
+
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
             return new AuthResponseDto
             {
-                Token = token,
+                Token = tokenString,
                 User = _mapper.Map<UserDto>(user),
                 ExpiresAt = expiresAt
             };

@@ -23,10 +23,26 @@ namespace ServiceManagementSystem.MVC.Services
         private void AddAuthHeader()
         {
             var token = _httpContextAccessor.HttpContext?.Session.GetString("JWTToken");
+            Console.WriteLine($"AddAuthHeader: Token present: {!string.IsNullOrEmpty(token)}");
             if (!string.IsNullOrEmpty(token))
             {
-                _httpClient.DefaultRequestHeaders.Authorization = 
+                // Remove existing Authorization header to avoid duplicates
+                if (_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+                {
+                    _httpClient.DefaultRequestHeaders.Remove("Authorization");
+                }
+                _httpClient.DefaultRequestHeaders.Authorization =
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                Console.WriteLine("AddAuthHeader: Authorization header set");
+            }
+            else
+            {
+                // Remove Authorization header if no token
+                if (_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+                {
+                    _httpClient.DefaultRequestHeaders.Remove("Authorization");
+                }
+                Console.WriteLine("AddAuthHeader: No token found, Authorization header removed");
             }
         }
 
@@ -124,10 +140,29 @@ namespace ServiceManagementSystem.MVC.Services
         public async Task<List<BookingViewModel>> GetBookingsAsync()
         {
             AddAuthHeader();
-            var response = await _httpClient.GetAsync("/api/bookings");
-            if (response.IsSuccessStatusCode)
+
+            // Get user ID from session (this would be stored when user logs in)
+            var userId = _httpContextAccessor.HttpContext?.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
             {
-                var content = await response.Content.ReadAsStringAsync();
+                // Fallback to getting all bookings if no user ID in session
+                var response = await _httpClient.GetAsync("/api/bookings");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<List<BookingViewModel>>(content, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }) ?? new List<BookingViewModel>();
+                }
+                return new List<BookingViewModel>();
+            }
+
+            // Get user-specific bookings
+            var userResponse = await _httpClient.GetAsync($"/api/bookings/user/{userId}");
+            if (userResponse.IsSuccessStatusCode)
+            {
+                var content = await userResponse.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<List<BookingViewModel>>(content, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
@@ -141,7 +176,7 @@ namespace ServiceManagementSystem.MVC.Services
             AddAuthHeader();
             var json = JsonSerializer.Serialize(model);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            
+
             var response = await _httpClient.PostAsync("/api/bookings", content);
             if (response.IsSuccessStatusCode)
             {
@@ -151,7 +186,12 @@ namespace ServiceManagementSystem.MVC.Services
                     PropertyNameCaseInsensitive = true
                 });
             }
-            return null;
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Booking creation failed: {response.StatusCode} - {errorContent}");
+                return null;
+            }
         }
 
         public async Task<bool> ProcessPaymentAsync(int bookingId, string paymentMethod)
@@ -159,9 +199,23 @@ namespace ServiceManagementSystem.MVC.Services
             AddAuthHeader();
             var json = JsonSerializer.Serialize(paymentMethod);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            
+
             var response = await _httpClient.PostAsync($"/api/bookings/{bookingId}/payment", content);
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> CheckAvailabilityAsync(int providerId, DateTime bookingDate, TimeSpan startTime, TimeSpan endTime)
+        {
+            var response = await _httpClient.GetAsync($"/api/bookings/availability?providerId={providerId}&bookingDate={bookingDate:yyyy-MM-dd}&startTime={startTime}&endTime={endTime}");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<bool>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+            return false;
         }
     }
 
